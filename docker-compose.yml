@@ -1,0 +1,31 @@
+name: internal-knowledge-poc
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge}
+      POSTGRES_USER: ${POSTGRES_USER:-knowledge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env before starting}
+    ports:
+      # Local development: accept connections from this Mac only.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - type: bind
+        source: ./init-db.sql
+        target: /docker-entrypoint-initdb.d/01-vector.sql
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      # TCP becomes available after the first-run SQL scripts finish.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  pgdata:
