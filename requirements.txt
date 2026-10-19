@@ -1,0 +1,8 @@
+# Python 3.11. Versions validated together for this PoC.
+sentence-transformers==5.7.0
+transformers==4.57.6
+torch==2.14.1
+numpy==2.4.6
+psycopg[binary]==3.3.6
+pgvector==0.5.1
+python-dotenv==1.2.4
